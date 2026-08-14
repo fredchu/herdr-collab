@@ -15,17 +15,18 @@ challenge each other — subagents inherit the dispatcher's frame and cannot.
 git clone <this-repo> ~/dev/herdr-collab
 # Claude Code
 ln -s ~/dev/herdr-collab ~/.claude/skills/herdr-collab
-# pi
-ln -s ~/dev/herdr-collab ~/.pi/agent/skills/herdr-collab
+# pi（尊重 PI_CODING_AGENT_DIR，未設則預設 ~/.pi/agent）
+ln -s ~/dev/herdr-collab "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/herdr-collab"
 ```
 
-裝完在 Claude Code 跑 `/reload-plugins`（或重開 session）。
+裝完**重開 session 最可靠**；Claude Code 亦可試 `/reload-plugins`。
 
 ## 需求 Requirements
 
 - herdr（session 需在 herdr 內執行，`HERDR_ENV=1`）
 - 一個 coding agent CLI（預設 `claude`；`codex`、`pi` 皆可）
 - Python 3（bootstrap 腳本，stdlib only）
+- 注意：pi 若慣用 `--no-skills`/`-ns` 啟動，skill 不會載入
 
 ## 客製化 Configuration
 

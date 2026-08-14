@@ -5,6 +5,7 @@
 """
 import argparse
 import os
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -28,7 +29,7 @@ BRIEFING = """# briefing — {topic}（herdr 多 session 協作）
 
 ## 硬約束
 
-- <待填：quota gate／lock／時限／不可動的東西>
+- <待填：API 額度上限／檔案鎖／時間限制／不可動的東西>
 - **這一輪先驗證再動手**；實作階段按下方所有權表分工，不同時改同一 repo。
 
 ## 檔案所有權
@@ -70,6 +71,13 @@ def main():
                     help="逗號分隔，首位=發起 session")
     args = ap.parse_args()
 
+    # --topic slug 化：agent 常直接從任務描述生成 topic，可能夾帶路徑成分或空白。
+    # 先剝掉所有路徑成分再只留文字/連字號（\w 含中文，保留中文 topic）。
+    raw = Path(args.topic).name
+    slug = re.sub(r"[^\w-]+", "-", raw, flags=re.U).strip("-")
+    if not slug:
+        sys.exit("ERROR: --topic 需要至少一個文字字元（收到: %r）" % args.topic)
+
     roles = [r.strip() for r in args.roles.split(",") if r.strip()]
     if len(roles) != args.sessions:
         sys.exit(f"ERROR: --roles 數量（{len(roles)}）必須等於 --sessions（{args.sessions}）")
@@ -77,7 +85,9 @@ def main():
     if unknown:
         print(f"[note] 非標準角色（允許，但 briefing 請自行說明職責）: {unknown}")
 
-    workdir = COLLAB_DIR / f"{date.today():%Y%m%d}-{args.topic}"
+    if not COLLAB_DIR.parent.exists():
+        print(f"[note] HERDR_COLLAB_DIR 的上層目錄不存在，將整路建立: {COLLAB_DIR}（打錯路徑請 Ctrl-C）")
+    workdir = COLLAB_DIR / f"{date.today():%Y%m%d}-{slug}"
     if workdir.exists():
         sys.exit(f"ERROR: 已存在 {workdir}（換 topic 或清掉再跑）")
     workdir.mkdir(parents=True)
@@ -88,7 +98,7 @@ def main():
         for i, r in enumerate(roles))
     briefing = workdir / "briefing.md"
     briefing.write_text(BRIEFING.format(
-        topic=args.topic, workdir=workdir,
+        topic=slug, workdir=workdir,
         initiator_note="<待填：發起 session 的 agent/model 與 pane>",
         roles_block=roles_block), encoding="utf-8")
 
