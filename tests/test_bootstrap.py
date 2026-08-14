@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 from datetime import date
@@ -8,10 +9,14 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "bootstrap.py"
 
 def run(tmp_path, *args, cli=None):
     env = {"HERDR_COLLAB_DIR": str(tmp_path / "collab"), "PATH": "/usr/bin:/bin"}
+    if os.name == "nt":
+        # Windows: CPython cannot initialize without SYSTEMROOT in the env
+        # (_Py_HashRandomization_Init fails to get random numbers).
+        env["SYSTEMROOT"] = os.environ["SYSTEMROOT"]
     if cli:
         env["HERDR_COLLAB_AGENT_CLI"] = cli
     return subprocess.run([sys.executable, str(SCRIPT), *args],
-                          capture_output=True, text=True, env=env)
+                          capture_output=True, text=True, encoding="utf-8", env=env)
 
 
 def today():
