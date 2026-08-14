@@ -12,7 +12,7 @@ challenge each other — subagents inherit the dispatcher's frame and cannot.
 ## 安裝 Install
 
 ```bash
-git clone <this-repo> ~/dev/herdr-collab
+git clone https://github.com/fredchu/herdr-collab ~/dev/herdr-collab
 # Claude Code
 ln -s ~/dev/herdr-collab ~/.claude/skills/herdr-collab
 # pi（尊重 PI_CODING_AGENT_DIR，未設則預設 ~/.pi/agent）
