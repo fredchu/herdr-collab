@@ -69,3 +69,24 @@ def test_roles_mismatch_rejected(tmp_path):
     p = run(tmp_path, "--topic", "t2", "--sessions", "3")
     assert p.returncode != 0
     assert "--roles 數量" in p.stderr
+
+
+# 2026-08-14：每席模型規劃（--clis）＋預設 bypass permission
+def test_default_cli_has_bypass(tmp_path):
+    p = run(tmp_path, "--topic", "t3")
+    assert "claude --dangerously-skip-permissions" in p.stdout
+
+
+def test_clis_count_mismatch_rejected(tmp_path):
+    p = run(tmp_path, "--topic", "t4", "--clis=-,a,b")
+    assert p.returncode != 0
+    assert "--clis 數量" in p.stderr
+
+
+def test_clis_in_briefing_and_stdout(tmp_path):
+    p = run(tmp_path, "--topic", "t5",
+            "--clis=-,claude --dangerously-skip-permissions --model opus")
+    assert p.returncode == 0, p.stderr
+    body = (tmp_path / "collab" / f"{today()}-t5" / "briefing.md").read_text()
+    assert "--model opus" in body                     # 每席模型留紀錄
+    assert "--model opus" in p.stdout                  # 開 pane 指令帶對的 CLI

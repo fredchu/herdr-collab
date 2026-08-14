@@ -14,7 +14,7 @@ description: 啟動 herdr 多 session 對抗協作——在同一台機器開 2-
 | 變數 | 預設 | 用途 |
 |---|---|---|
 | `HERDR_COLLAB_DIR` | `~/.claude/collab` | 共用工作目錄的根 |
-| `HERDR_COLLAB_AGENT_CLI` | `claude` | 在新 pane 起 peer 的指令（如 `codex`、`pi`） |
+| `HERDR_COLLAB_AGENT_CLI` | `claude --dangerously-skip-permissions` | 在新 pane 起 peer 的預設指令。peer pane 沒人盯著，權限確認框＝假死，故預設 bypass；換 `codex`/`pi` 請自帶等效旗標 |
 
 ## 0. 適用判準（三個都要成立，否則回報用戶不適用）
 
@@ -22,29 +22,36 @@ description: 啟動 herdr 多 session 對抗協作——在同一台機器開 2-
 2. 爆炸半徑大（infra 預設、事故調查、改日常行為）或研究＋實作＋驗證全鏈
 3. 檔案所有權能切乾淨
 
-## 1. 決定人數與角色
+## 1. 決定人數、角色與模型
 
 - **預設 2**：實作者＋對抗驗證者（角色按組件互換）
 - **3 的條件**（任一命中才開第三席）：需要**意圖守門人**（不進實作共識圈，只拿產出對照
   原始 brief 與用戶偏好）或**長實驗跑者**（≥30 分鐘背景實驗，跑者與分析者分離）
 - **不要 4+**：通道數平方成長，需要更多平行度＝任務其實是 fan-out 型
-- 用戶指定人數／角色時照用戶的
+- **每席同時決定模型檔位**（開 pane 前決定，不是開完再想）：驗證者／意圖守門人的檔位
+  **≥** 實作者——把關比實作重要；不確定就全席同檔位。決定透過 bootstrap 的 `--clis`
+  傳入，briefing 會留下每席啟動指令的紀錄，方便事後歸因
+- 用戶指定人數／角色／模型時照用戶的
 
 ## 2. Bootstrap（確定性部分走腳本）
 
 ```bash
 python3 <本 skill 目錄>/scripts/bootstrap.py \
-  --topic <kebab-slug> --sessions 2 --roles "implementer,adversarial-verifier"
+  --topic <kebab-slug> --sessions 2 --roles "implementer,adversarial-verifier" \
+  "--clis=-,claude --dangerously-skip-permissions --model opus"
 ```
 
 腳本會：建共用工作目錄、產 briefing 骨架（含挑錯授權條款與意圖 gate 清單的固定文字）、
-印出開 pane 的指令序列。
+印出每席帶各自 CLI／模型的開 pane 指令序列。`--clis` 首位=發起 session（已在跑，填 `-`）、
+須用 `--clis=` 等號形式；省略則全 peer 用 `HERDR_COLLAB_AGENT_CLI` 預設值。
+注意 bypass 模式下 peer 不會再問權限——briefing 的檔案所有權表與意圖 gate 就是唯一防線，
+所有權表不可留空泛描述。
 
 然後你（發起 session）：
 1. **把 briefing 骨架的 `<待填>` 全部填完**——任務、硬約束、檔案所有權表、
    本任務特有的意圖 gate 項目。briefing 品質決定協作品質，不要留空泛描述。
 2. 開 pane（先 `herdr pane split --help` 確認旗標再執行，不要憑記憶猜 CLI）：
-   split → 在新 pane run `$HERDR_COLLAB_AGENT_CLI` → `herdr agent prompt <pane>
+   split → 在新 pane run 該席的啟動指令（bootstrap 已按 `--clis` 印出）→ `herdr agent prompt <pane>
    "任務開始。先完整讀 briefing 再動手：<briefing 絕對路徑>。讀完回我一句確認＋
    你對角色分工的異議（若有）。"`
 3. 等每個 peer 回覆確認後才進入迭代。
