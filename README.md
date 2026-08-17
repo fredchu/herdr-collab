@@ -33,7 +33,7 @@ ln -s ~/dev/herdr-collab "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/herdr-c
 | env | default | 說明 |
 |---|---|---|
 | `HERDR_COLLAB_DIR` | `~/.claude/collab` | 共用工作目錄根（briefing、findings 檔都放這） |
-| `HERDR_COLLAB_AGENT_CLI` | `claude` | 在新 pane 起 peer 的指令 |
+| `HERDR_COLLAB_AGENT_CLI` | `claude --dangerously-skip-permissions` | 在新 pane 起 peer 的預設指令（peer pane 沒人盯著，權限確認框＝假死，故預設 bypass；換 CLI 請自帶等效旗標） |
 
 skill 本身不含任何個人路徑；briefing 骨架的任務內容、檔案所有權、
 額度/鎖規則都在啟動時由發起 session 填入。
@@ -42,7 +42,8 @@ skill 本身不含任何個人路徑；briefing 骨架的任務內容、檔案�
 
 對你的 agent 說：**「開 herdr 協作：<任務描述>」**（可加人數／角色，例如
 「三個，第三個當意圖守門人」）。agent 會照 `SKILL.md` 走七步流程：
-判準 → bootstrap（腳本建目錄＋briefing 骨架）→ 開 pane → 迭代（換口徑複驗）→
+判準 → 決定人數/角色/**每席模型**（驗證者檔位 ≥ 實作者）→ bootstrap（腳本建目錄＋
+briefing 骨架，`--clis` 記錄每席啟動指令）→ 開 pane → 迭代（換口徑複驗）→
 意圖 gate → 一支筆收尾 → 互評。
 
 方法論與五種已知失效模式（含「共識≠用戶意圖」——這套模式特有的最大陷阱）：

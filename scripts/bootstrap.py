@@ -23,7 +23,8 @@ for _stream in (sys.stdout, sys.stderr):
 # eager .get(default) form evaluates it even when HERDR_COLLAB_DIR is set.
 _collab_dir = os.environ.get("HERDR_COLLAB_DIR")
 COLLAB_DIR = Path(_collab_dir).expanduser() if _collab_dir else Path.home() / ".claude/collab"
-AGENT_CLI = os.environ.get("HERDR_COLLAB_AGENT_CLI", "claude")
+# peer pane 沒人盯著，權限確認框＝假死，故預設 bypass；換 codex/pi 請自帶等效旗標
+AGENT_CLI = os.environ.get("HERDR_COLLAB_AGENT_CLI", "claude --dangerously-skip-permissions")
 
 BRIEFING = """# briefing — {topic}（herdr 多 session 協作）
 
@@ -81,6 +82,10 @@ def main():
     ap.add_argument("--sessions", type=int, default=2, choices=(2, 3))
     ap.add_argument("--roles", default="implementer,adversarial-verifier",
                     help="逗號分隔，首位=發起 session")
+    ap.add_argument("--clis", default=None,
+                    help="逗號分隔的每席啟動指令（含模型旗標），數量=sessions；"
+                         "首位=發起 session（已在跑，填 -）。省略則全 peer 用預設 CLI。"
+                         "須用 --clis=... 等號形式（值以 - 開頭）；指令本身不可含逗號")
     args = ap.parse_args()
 
     # --topic slug 化：agent 常直接從任務描述生成 topic，可能夾帶路徑成分或空白。
@@ -97,6 +102,13 @@ def main():
     if unknown:
         print(f"[note] 非標準角色（允許，但 briefing 請自行說明職責）: {unknown}")
 
+    if args.clis:
+        clis = [c.strip() for c in args.clis.split(",")]
+        if len(clis) != args.sessions:
+            sys.exit(f"ERROR: --clis 數量（{len(clis)}）必須等於 --sessions（{args.sessions}）")
+    else:
+        clis = ["-"] + [AGENT_CLI] * (args.sessions - 1)
+
     if not COLLAB_DIR.parent.exists():
         print(f"[note] HERDR_COLLAB_DIR 的上層目錄不存在，將整路建立: {COLLAB_DIR}（打錯路徑請 Ctrl-C）")
     workdir = COLLAB_DIR / f"{date.today():%Y%m%d}-{slug}"
@@ -107,6 +119,7 @@ def main():
     roles_block = "\n".join(
         f"- session {i+1}（{'發起，本 pane' if i == 0 else f'pane <待填 w?:p?>'}）："
         f"**{r}** — {ROLE_HINTS.get(r, '<待填職責>')}"
+        + ("" if clis[i] == "-" else f"（啟動指令：`{clis[i]}`）")
         for i, r in enumerate(roles))
     briefing = workdir / "briefing.md"
     briefing.write_text(BRIEFING.format(
@@ -114,6 +127,9 @@ def main():
         initiator_note="<待填：發起 session 的 agent/model 與 pane>",
         roles_block=roles_block), encoding="utf-8")
 
+    pane_lines = "\n".join(
+        f"     # pane {i+1}（{roles[i]}）→ split 出新 pane → run `{clis[i]}` → 等它就緒"
+        for i in range(1, args.sessions))
     print(f"workdir : {workdir}")
     print(f"briefing: {briefing}")
     print(f"""
@@ -121,7 +137,7 @@ def main():
 1. 填完 briefing 所有 <待填>（品質決定協作品質）
 2. 每個 peer 開一個 pane（先 --help 確認旗標，勿憑記憶猜）：
      herdr pane split --help && herdr pane run --help
-     # split 出新 pane → 在新 pane run `{AGENT_CLI}` → 等它就緒
+{pane_lines}
 3. 注入啟動訊息：
      herdr agent prompt <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我一句確認＋你對角色分工的異議（若有）。"
 4. 收到每個 peer 的確認才進迭代（SKILL.md §3）。""")
