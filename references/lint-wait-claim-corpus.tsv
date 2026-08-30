@@ -1,0 +1,46 @@
+# lint_wait_claim 雙向語料。欄位：期望(BLOCK|PASS)<TAB>訊息。一列＝一則訊息；多行訊息以字面 \n 逃逸，讀取時要還原。
+# 後設句（談論「等」字本身）允許誤殺，其他 PASS 被擋＝規則有洞。
+BLOCK	等 pi 額度 13:33 重置再派工
+BLOCK	我在等 Fable 的量測數字
+BLOCK	等 pi 交件
+BLOCK	先等一下，pi 跑完我再合併
+BLOCK	等你的規劃出來我再動
+BLOCK	等額度授權
+PASS	等 pi 交件（監看 be59l03eh）
+PASS	等 R1 落地，背景 until 已掛 boiq2qno3
+PASS	等 13:33 額度重置，ScheduleWakeup 已排
+PASS	等 pi 的 SKILL.md，task id bpy9t5lpj 盯著
+PASS	等一下我先講結論：R2 過了
+PASS	P3 的等價主張要降級
+PASS	同等條件下雲端較快
+PASS	這兩條是同一族，等於是一個 gate
+PASS	上等、中等、等級都不是等待
+PASS	等待器 timeout 比任務久（memory 那條），這是引用不是在等
+PASS	我來跑 R2，估 $0.04
+PASS	不用等，我現在就跑
+BLOCK	背景說明一下，我在等 pi 的結果
+BLOCK	監看一下就好，我等他
+BLOCK	until 迴圈我沒掛，等 Fable
+BLOCK	等 Monitor abc12
+PASS	兩側的等價性主張要降級
+PASS	等一下我先講另一件事
+PASS	等 pi 交件，task id bznlk4xf1 盯著
+PASS	我來跑 R2，跑完回報
+PASS	等待器 timeout 比任務久
+BLOCK	我在等待 pi 的授權
+PASS	三席各做一次，等等我補
+BLOCK	等他們兩個都交件
+PASS	我先等對方\n已掛背景 until 迴圈 bf9df30it
+BLOCK	監看 be59l03eh 還在跑 R1。\n另外我等 pi 的授權再動 fallback。
+BLOCK	我等 pi\n這件事先擱著\n背景 until 已掛 bf9df30it
+BLOCK	我等 Fable 的清單\n中間隔一句\n監看 be59l03eh 掛著
+# 「等等」對抗句（2026-08-31 01:40 加）：等等＋受詞＝等待；等等＋句尾/標點/再/我＝非動詞
+BLOCK	等等 pi 的結果
+BLOCK	等等看 Fable 給什麼
+BLOCK	先等等，pi 還沒交件
+BLOCK	等等 Fable
+PASS	等等再說
+PASS	三席各做一次，等等我補
+PASS	Breeze、VV、large-v3 等等
+PASS	四條路徑 Breeze、VV 等等。
+PASS	等等我
