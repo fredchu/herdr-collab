@@ -19,14 +19,22 @@ HANDLE_RE = re.compile(
     re.IGNORECASE,
 )
 SENTENCE_END_RE = re.compile(r"(?<=[。！？!?；;])")
+MENTION_RE = re.compile(
+    r"(?:「(?:等等|等)」|『(?:等等|等)』|\"(?:等等|等)\"|'(?:等等|等)'|`(?:等等|等)`)"
+    r"(?=\s*(?:這|字|的|是|不|也|[，。、,.;；!！?？）)]|$))"
+)
 
 
 def _wait_positions(sentence: str) -> list[int]:
     idioms = [match.span() for match in IDIOM_RE.finditer(sentence)]
+    mention_spans = [match.span() for match in MENTION_RE.finditer(sentence)]
+
     positions: list[int] = []
     for match in re.finditer("等", sentence):
         start, end = match.span()
         if any(lo <= start < hi for lo, hi in idioms):
+            continue
+        if any(lo <= start < hi for lo, hi in mention_spans):
             continue
         if start and sentence[start - 1] in PREFIX_CHARS:
             continue

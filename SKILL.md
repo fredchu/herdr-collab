@@ -72,6 +72,7 @@ python3 <本 skill 目錄>/scripts/bootstrap.py \
 - 二、動手前一行宣告「我來跑 X」。
   - 十秒宣告換掉整個共用待辦清單：規則一會讓兩席同時做同一件事，不先宣告就會造成雙倍成本。
   - 完成也要宣告完整句：「X 做完了，產物在 Y」。
+  - 跨席訊息一律用 `<本 skill 目錄>/scripts/say.sh <pane> "內容"` 送出；送出訊息時會自動跑 lint，不是選用建議。手動檢查用 `printf '%s' "內容" | python3 <本 skill 目錄>/scripts/lint_wait_claim.py`。
 - 任何人能做的事沒有主人：交接不可以寫「等某某有額度」，要寫「這件事任何人有額度都能做：指令是 X、預期是 Y」。
 
 ## 4. 意圖 gate（無論 session 間共識多強，命中就停下問用戶）

@@ -13,12 +13,14 @@ from pathlib import Path
 COLLAB_DIR = Path(os.environ.get("HERDR_COLLAB_DIR", str(Path.home() / ".claude/collab"))).expanduser()
 # peer pane 沒人盯著，權限確認框＝假死，故預設 bypass；換 codex/pi 請自帶等效旗標
 AGENT_CLI = os.environ.get("HERDR_COLLAB_AGENT_CLI", "claude --dangerously-skip-permissions")
+SAY_SH = Path(__file__).resolve().with_name("say.sh")
 
 BRIEFING = """# briefing — {topic}（herdr 多 session 協作）
 
 > 發起：{initiator_note}
 > 共用工作目錄：{workdir}
-> 回話方式：`herdr agent prompt <pane> "內容"`；長內容寫檔案再給路徑。
+> 回話方式：`{say_sh} <pane> "內容"`；長內容寫檔案再給路徑。
+> 多這一層是為了送出前自動 lint，阻止沒有掛喚醒把手的等待宣告。
 
 ## 任務
 
@@ -113,7 +115,7 @@ def main():
     briefing.write_text(BRIEFING.format(
         topic=slug, workdir=workdir,
         initiator_note="<待填：發起 session 的 agent/model 與 pane>",
-        roles_block=roles_block), encoding="utf-8")
+        roles_block=roles_block, say_sh=SAY_SH), encoding="utf-8")
 
     pane_lines = "\n".join(
         f"     # pane {i+1}（{roles[i]}）→ split 出新 pane → run `{clis[i]}` → 等它就緒"
@@ -127,7 +129,7 @@ def main():
      herdr pane split --help && herdr pane run --help
 {pane_lines}
 3. 注入啟動訊息：
-     herdr agent prompt <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我一句確認＋你對角色分工的異議（若有）。"
+     {SAY_SH} <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我一句確認＋你對角色分工的異議（若有）。"
 4. 收到每個 peer 的確認才進迭代（SKILL.md §3）。""")
 
 

@@ -44,3 +44,16 @@ PASS	三席各做一次，等等我補
 PASS	Breeze、VV、large-v3 等等
 PASS	四條路徑 Breeze、VV 等等。
 PASS	等等我
+# use–mention 案例（03:50 加）：引號內恰好「等」/「等等」且引號後接 這|字|的|是|不|也|標點|句尾 才算提字；引號後直接接受詞＝仍是等待
+PASS	「等」這個字只准跟一個會叫醒你的東西一起出現
+PASS	lint 對「等」的判定改了
+PASS	「等等」是慣用句
+PASS	規則裡的「等」
+BLOCK	「等 pi 的結果」
+BLOCK	「等」pi 的結果
+BLOCK	「等」Fable 交件
+BLOCK	『等』pi 的結果
+BLOCK	「等等」pi 的結果
+BLOCK	他說「等 pi 交件」
+BLOCK	「等」「等」pi 交件
+BLOCK	我在等 pi，「等」這個字我知道
