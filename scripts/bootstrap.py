@@ -10,7 +10,19 @@ import sys
 from datetime import date
 from pathlib import Path
 
-COLLAB_DIR = Path(os.environ.get("HERDR_COLLAB_DIR", str(Path.home() / ".claude/collab"))).expanduser()
+# Windows: default console/pipe encoding is the ANSI code page (e.g. cp950),
+# which cannot represent this script's Chinese output — force UTF-8.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+# Lazy default: only touch Path.home() when the env var is absent — home()
+# raises RuntimeError in stripped environments (no USERPROFILE/HOME), and the
+# eager .get(default) form evaluates it even when HERDR_COLLAB_DIR is set.
+_collab_dir = os.environ.get("HERDR_COLLAB_DIR")
+COLLAB_DIR = Path(_collab_dir).expanduser() if _collab_dir else Path.home() / ".claude/collab"
 # peer pane 沒人盯著，權限確認框＝假死，故預設 bypass；換 codex/pi 請自帶等效旗標
 AGENT_CLI = os.environ.get("HERDR_COLLAB_AGENT_CLI", "claude --dangerously-skip-permissions")
 SAY_SH = Path(__file__).resolve().with_name("say.sh")
