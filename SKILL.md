@@ -1,5 +1,6 @@
 ---
 name: herdr-collab
+version: 0.3.0
 description: 啟動 herdr 多 session 對抗協作——在同一台機器開 2-3 個 peer coding agent session 互相挑錯、分工實作與驗證。當用戶說「開 herdr 協作」「herdr 多 session」「開一個 pane 一起做」「找另一個 session 協作/驗證」「雙 session 對抗」時使用。也適用於用戶描述了一個爆炸半徑大、有可驗證 ground truth、需要「實作者＋獨立驗證者」結構的任務並暗示要多顆腦。不適用於：平行 fan-out 苦力（用 subagent/多 agent 編排——它們繼承派工者的 frame 挑不了錯，peer 才能）、例行任務、單檔修改、探索式研究（context 該集中一顆腦）。
 ---
 
