@@ -69,11 +69,29 @@ python3 <本 skill 目錄>/scripts/bootstrap.py \
   - `ScheduleWakeup` 單獨出現即視為有效（可不帶識別碼）；把手必須在等待主張的同句或下一句，前一句與訊息其他位置不算。
   - 「等」這個字只准跟一個會叫醒你的東西一起出現。
   - 聲稱要等待之前強制先回答：「我手上哪一行需要對方的輸出？」答不出具體哪一行＝不需要等。
+  - 叫醒為空連續 2 次時，等待者強制做三個動作：`herdr agent get <pane>`、`herdr pane read <pane> --lines 40`、查上一則 `say.sh` exit code；三個做完才准再掛。`done` 不等於做完，對方可能把工作丟背景。
+  - 把手可用 `herdr agent wait <pane> --timeout <ms>`（不帶 `--until`，預設匹配 idle／done／blocked）。掛之前先 `herdr agent wait <pane> --until working --timeout 5000` 確認對方真的起了回合，否則會立刻拿到上一回合的舊 done。`--until idle` 對沒被 focus 的 peer pane 永遠不醒，不准用（herdr 只用「有沒有被看過」分 done 與 idle，peer pane 沒人看）。`pane wait-output` 會對到既有字樣與你自己送進去的提示行，不能當把手。
 - 二、動手前一行宣告「我來跑 X」。
   - 十秒宣告換掉整個共用待辦清單：規則一會讓兩席同時做同一件事，不先宣告就會造成雙倍成本。
   - 完成也要宣告完整句：「X 做完了，產物在 Y」。
   - 跨席訊息一律用 `<本 skill 目錄>/scripts/say.sh <pane> "內容"` 送出；送出訊息時會自動跑 lint，不是選用建議。手動檢查用 `printf '%s' "內容" | python3 <本 skill 目錄>/scripts/lint_wait_claim.py`。
+  - `say.sh` exit 2＝未送達，不准當已送；先 `herdr pane read <pane> --lines 40` 確認訊息不在 pane 裡，才重送。
+  - 正在 working 的席位收到訊息，會在它下一個工具呼叫邊界併進當前回合；打不斷的是正在跑的那個工具，不是整個回合。要能中止的長實驗必須有 kill 檔或 checkpoint。
 - 任何人能做的事沒有主人：交接不可以寫「等某某有額度」，要寫「這件事任何人有額度都能做：指令是 X、預期是 Y」。
+
+## 3.5 判活
+
+判活以 `herdr agent get <pane>` 為準；狀態語意如下：
+
+| 狀態 | 判定與動作 |
+|---|---|
+| `idle` | 活著；不等於做完，也不等於死掉 |
+| `working` | 活著 |
+| `blocked` | 卡在提示框；讀 pane 查明卡點 |
+| `done` | 上一回合結束且沒人看過；活著；不等於做完（對方可能把工作丟背景） |
+| `unknown` | 無法判定，不是死掉 |
+
+`herdr agent explain` 給的是偵測器原始態，可能與 `get` 不同。`get` 回 `unknown`＝有 agent 但分不出狀態（啟動頭幾秒也會），活著但不明，讀 pane；沒 agent 時 `get` 回錯誤碼 `agent_not_found`，此時 `herdr pane list` 該列 `agent` 為空、`agent_status` 顯 `unknown`。判死看可操作的錯誤碼：`herdr agent get <pane>` 回 `agent_not_found` 且 `herdr pane list` 該列 `agent` 為空，只表示 pane 目前沒掛 agent（沒起或已退出），pane 還在；再 `herdr pane read <pane>` 見 shell 提示才算已退出；`herdr pane read <pane>` 回 `pane_not_found`，表示 pane 已關。
 
 ## 4. 意圖 gate（無論 session 間共識多強，命中就停下問用戶）
 
@@ -87,4 +105,6 @@ python3 <本 skill 目錄>/scripts/bootstrap.py \
 - 由 context 最低的 session 單獨執行收尾寫入（session 交接紀錄、知識庫、memory——
   依你環境的制度；多個 session 若共用同一份交接檔，多人寫＝互相覆蓋）
 - 殘留項寫共用目錄 `OPEN-ITEMS.md`
+- commit 前用 `git status --porcelain` 逐檔對照所有權表；不在表裡的檔不進 commit。
+- 逐席三選一：關閉；保留（寫明原因與期限，並在 `OPEN-ITEMS.md` 登記 pane id）；交棒（新任務重發 briefing，並明送「本協作結束，你原角色作廢」）。接棒時同樣要對舊席明送角色作廢。
 - 互評一句：各自指出對方本輪最大的錯（方法層優先），值得的寫進你的教訓庫

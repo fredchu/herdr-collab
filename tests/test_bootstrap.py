@@ -28,6 +28,27 @@ def test_normal_topic(tmp_path):
     assert "quota gate" not in body  # MAJOR-3：briefing 骨架不得含內部術語
 
 
+def test_briefing_marks_messages_requiring_action(tmp_path):
+    p = run(tmp_path, "--topic", "blocked-message")
+    assert p.returncode == 0, p.stderr
+    body = (tmp_path / "collab" / f"{today()}-blocked-message" / "briefing.md").read_text()
+    assert "[blocked]" in body
+
+
+def test_briefing_defines_independent_acceptance(tmp_path):
+    p = run(tmp_path, "--topic", "acceptance")
+    assert p.returncode == 0, p.stderr
+    body = (tmp_path / "collab" / f"{today()}-acceptance" / "briefing.md").read_text()
+    assert "## 驗收" in body
+    assert "不得寫成指令" in body
+
+
+def test_bootstrap_stdout_requests_peer_identity(tmp_path):
+    p = run(tmp_path, "--topic", "identity")
+    assert p.returncode == 0, p.stderr
+    assert "session id" in p.stdout
+
+
 def test_chinese_topic_preserved(tmp_path):
     p = run(tmp_path, "--topic", "字幕修正")
     assert p.returncode == 0, p.stderr

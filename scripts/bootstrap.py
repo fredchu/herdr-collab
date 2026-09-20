@@ -56,6 +56,12 @@ BRIEFING = """# briefing — {topic}（herdr 多 session 協作）
 ## 回報格式
 
 每輪：結論一句話＋支撐證據（檔案路徑或指令輸出）＋你認為我哪裡錯了。
+需要對方動作的訊息以 `[blocked]` 開頭，其他不標。
+
+## 驗收
+
+- 實作產物：<待填：可重跑指令＋基線數字>
+- 複驗產物：<待填：必須指名一個與實作者不同的口徑、一個紅綠變異；不得寫成指令>
 """
 
 ROLE_HINTS = {
@@ -129,7 +135,7 @@ def main():
      herdr pane split --help && herdr pane run --help
 {pane_lines}
 3. 注入啟動訊息：
-     {SAY_SH} <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我一句確認＋你對角色分工的異議（若有）。"
+     {SAY_SH} <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我：你的 session id（herdr pane list 的 agent_session.value）、模型、你是否為本 briefing 作者（應為否），再加上你對角色分工的異議（若有）。"
 4. 收到每個 peer 的確認才進迭代（SKILL.md §3）。""")
 
 

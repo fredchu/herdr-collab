@@ -15,7 +15,8 @@ IDIOM_RE = re.compile(
 )
 IDENTIFIER = r"[A-Za-z0-9][A-Za-z0-9_-]{5,}"
 HANDLE_RE = re.compile(
-    rf"(?:(?:監看|背景|until|Monitor|task[-_ ]?id)[^\n]{{0,40}}\b{IDENTIFIER}\b|ScheduleWakeup)",
+    rf"(?:(?:監看|背景|until|Monitor|task[-_ ]?id)[^\n]{{0,40}}\b{IDENTIFIER}\b|ScheduleWakeup"
+    rf"|(?-i:herdr\s+agent\s+wait\s+w\d+[A-Z]?:p\d+\b))",
     re.IGNORECASE,
 )
 SENTENCE_END_RE = re.compile(r"(?<=[。！？!?；;])")

@@ -65,6 +65,16 @@ def test_real_task_ids_are_valid() -> None:
     assert find_violations("等 pi 的 SKILL.md，task id bpy9t5lpj 盯著") == []
 
 
+def test_herdr_agent_wait_requires_a_pane_id() -> None:
+    assert find_violations("等 pi 交件，herdr agent wait w4K:p2 --timeout 600000 掛著") == []
+    text = "等 pi 交件，herdr agent wait 掛著"
+    assert find_violations(text) == [(1, text)]
+    lowercase_pane = "等 pi 交件，herdr agent wait w4k:p2 --timeout 600000 掛著"
+    assert find_violations(lowercase_pane) == [(1, lowercase_pane)]
+    wait_output = r"等 pi 交件，herdr pane wait-output w4K:p2 --regex '\[blocked\]' 掛著"
+    assert find_violations(wait_output) == [(1, wait_output)]
+
+
 def test_prefix_rule_excludes_bound_words() -> None:
     assert find_violations("上等、中等、高等、初等、優等、劣等、同等、相等、平均等") == []
     assert find_violations("我等 pi 交件") == [(1, "我等 pi 交件")]
