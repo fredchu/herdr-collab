@@ -43,11 +43,21 @@ skill 本身不含任何個人路徑；briefing 骨架的任務內容、檔案�
 對你的 agent 說：**「開 herdr 協作：<任務描述>」**（可加人數／角色，例如
 「三個，第三個當意圖守門人」）。agent 會照 `SKILL.md` 走七步流程：
 判準 → 決定人數/角色/**每席模型**（驗證者檔位 ≥ 實作者）→ bootstrap（腳本建目錄＋
-briefing 骨架，`--clis` 記錄每席啟動指令）→ 開 pane → 迭代（換口徑複驗）→
-意圖 gate → 一支筆收尾 → 互評。
+briefing 骨架，`--clis` 記錄每席啟動指令）→ 開 pane → 迭代（換口徑複驗、判活、
+掛叫醒把手）→ 意圖 gate → 一支筆收尾（逐席處置）→ 互評。
 
-方法論與五種已知失效模式（含「共識≠用戶意圖」——這套模式特有的最大陷阱）：
-`references/playbook.md`。
+跨席訊息一律走 `scripts/say.sh`，送出前自動跑 `scripts/lint_wait_claim.py`：
+擋沒掛把手的「等」、擋 `--until idle`（對 peer pane 永不醒）、認 pane id 當把手。
+語料在 `references/lint-wait-claim-corpus.tsv`，改 lint 必跑全語料回歸。
+
+方法論與六種已知失效模式（含「共識≠用戶意圖」——這套模式特有的最大陷阱，
+以及「沒消息當死掉」）：`references/playbook.md`。判活五態對照表在 `SKILL.md` §3.5。
+
+## 測試 Tests
+
+```bash
+python3 -m pytest -q   # bootstrap 骨架＋lint 語料回歸
+```
 
 ## License
 
