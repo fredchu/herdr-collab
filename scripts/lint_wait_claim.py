@@ -57,14 +57,18 @@ def _sentences(text: str) -> list[tuple[int, str]]:
 
 
 def find_violations(text: str) -> list[tuple[int, str]]:
-    """A handle must be in the wait sentence or its immediately next sentence."""
+    """A handle must be in the wait sentence or its immediately next sentence;
+    ``--until idle`` is not one because an unfocused peer pane never becomes idle
+    (review-01 runs 1/2).
+    """
     sentences = _sentences(text)
     bad_lines: set[int] = set()
     for index, (line_number, sentence) in enumerate(sentences):
         if not _wait_positions(sentence):
             continue
         following = sentences[index + 1][1] if index + 1 < len(sentences) else ""
-        if not HANDLE_RE.search(f"{sentence}\n{following}"):
+        window = f"{sentence}\n{following}"
+        if re.search(r"--until[\s=]+[\"']?idle\b", window, re.IGNORECASE) or not HANDLE_RE.search(window):
             bad_lines.add(line_number)
     lines = text.splitlines()
     return [(number, lines[number - 1]) for number in sorted(bad_lines)]

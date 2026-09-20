@@ -135,7 +135,7 @@ def main():
      herdr pane split --help && herdr pane run --help
 {pane_lines}
 3. 注入啟動訊息：
-     {SAY_SH} <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我：你的 session id（herdr pane list 的 agent_session.value）、模型、你是否為本 briefing 作者（應為否），再加上你對角色分工的異議（若有）。"
+     {SAY_SH} <pane> "任務開始。先完整讀 briefing 再動手：{briefing}。讀完回我：你的 session id（herdr pane list 的 agent_session.value）、模型、你是否為本 briefing 作者（應為否），再加上你對角色分工的異議（若有）。不要用 AskUserQuestion 或任何互動式提問工具，問題用 say.sh 送回來。"
 4. 收到每個 peer 的確認才進迭代（SKILL.md §3）。""")
 
 

@@ -75,6 +75,21 @@ def test_herdr_agent_wait_requires_a_pane_id() -> None:
     assert find_violations(wait_output) == [(1, wait_output)]
 
 
+def test_herdr_agent_wait_until_idle_is_not_a_handle() -> None:
+    for text in (
+        "等 pi 交件，herdr agent wait w4K:p2 --until idle 掛著",
+        "等 pi 交件，herdr agent wait w4K:p2 --until idle --timeout 600000 掛著",
+        "等 pi 交件，herdr agent wait w4K:p2 --until=idle 掛著",
+        '等 pi 交件，herdr agent wait w4K:p2 --until "idle" --timeout 600000 掛著',
+        "等 pi 交件，背景掛 herdr agent wait w4K:p2 --until idle 盯著 boiq2qno3",
+    ):
+        assert find_violations(text) == [(1, text)]
+    assert find_violations(
+        "等 pi 交件，herdr agent wait w4K:p2 --until working --timeout 5000 "
+        "再掛 herdr agent wait w4K:p2 --timeout 600000"
+    ) == []
+
+
 def test_prefix_rule_excludes_bound_words() -> None:
     assert find_violations("上等、中等、高等、初等、優等、劣等、同等、相等、平均等") == []
     assert find_violations("我等 pi 交件") == [(1, "我等 pi 交件")]

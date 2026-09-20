@@ -75,7 +75,7 @@ python3 <本 skill 目錄>/scripts/bootstrap.py \
   - 十秒宣告換掉整個共用待辦清單：規則一會讓兩席同時做同一件事，不先宣告就會造成雙倍成本。
   - 完成也要宣告完整句：「X 做完了，產物在 Y」。
   - 跨席訊息一律用 `<本 skill 目錄>/scripts/say.sh <pane> "內容"` 送出；送出訊息時會自動跑 lint，不是選用建議。手動檢查用 `printf '%s' "內容" | python3 <本 skill 目錄>/scripts/lint_wait_claim.py`。
-  - `say.sh` exit 2＝未送達，不准當已送；先 `herdr pane read <pane> --lines 40` 確認訊息不在 pane 裡，才重送。
+  - `say.sh` exit 2＝送達未確認（含 20 秒逾時，訊息可能已進 pane），不准當已送；先 `herdr pane read <pane> --lines 40` 確認訊息不在 pane 裡，才重送。
   - 正在 working 的席位收到訊息，會在它下一個工具呼叫邊界併進當前回合；打不斷的是正在跑的那個工具，不是整個回合。要能中止的長實驗必須有 kill 檔或 checkpoint。
 - 任何人能做的事沒有主人：交接不可以寫「等某某有額度」，要寫「這件事任何人有額度都能做：指令是 X、預期是 Y」。
 

@@ -47,6 +47,7 @@ def test_bootstrap_stdout_requests_peer_identity(tmp_path):
     p = run(tmp_path, "--topic", "identity")
     assert p.returncode == 0, p.stderr
     assert "session id" in p.stdout
+    assert "AskUserQuestion" in p.stdout
 
 
 def test_chinese_topic_preserved(tmp_path):
